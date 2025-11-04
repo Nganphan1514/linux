@@ -1,55 +1,42 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/utils.sh"
 
-# ====== TẠO NHÓM ======
-create_group() {
-  read -rp "Nhập tên nhóm mới: " g
-  if group_exists "$g"; then
-    notify_warn "Nhóm '$g' đã tồn tại."
+tao_nhom() {
+  read -rp "Nhập tên nhóm: " group
+  if group_exists "$group"; then
+    echo "${yellow}Nhóm đã tồn tại.${reset}"
+    log_action WARN "Nhóm '$group' đã tồn tại"
     return
   fi
-  groupadd "$g"
-  notify_success "Đã tạo nhóm '$g'."
-  log_action INFO "Tạo nhóm $g"
+  groupadd "$group"
+  echo "${green}Đã tạo nhóm '$group'.${reset}"
+  log_action INFO "Tạo nhóm '$group'"
 }
 
-# ====== XÓA NHÓM ======
-delete_group() {
-  read -rp "Nhập tên nhóm cần xóa: " g
-  if ! group_exists "$g"; then
-    notify_error "Không tồn tại nhóm '$g'."
-    return
-  fi
-  groupdel "$g" && notify_success "Đã xóa nhóm '$g'." && log_action INFO "Xóa nhóm $g"
+xoa_nhom() {
+  read -rp "Nhập tên nhóm cần xóa: " group
+  groupdel "$group" && echo "${green}Đã xóa nhóm '$group'.${reset}"
+  log_action INFO "Xóa nhóm '$group'"
 }
 
-# ====== THÊM NGƯỜI DÙNG VÀO NHÓM ======
-add_user_to_group() {
-  read -rp "Nhập tên người dùng: " u
-  read -rp "Nhập tên nhóm: " g
-
-  if ! user_exists "$u"; then notify_error "Không tồn tại người dùng '$u'."; return; fi
-  if ! group_exists "$g"; then notify_error "Không tồn tại nhóm '$g'."; return; fi
-
-  usermod -aG "$g" "$u" && notify_success "Đã thêm '$u' vào nhóm '$g'." && \
-  log_action INFO "Thêm $u vào nhóm $g"
+them_nguoi_vao_nhom() {
+  read -rp "Nhập tên người dùng: " user
+  read -rp "Nhập tên nhóm: " group
+  usermod -aG "$group" "$user"
+  echo "${green}Đã thêm '$user' vào nhóm '$group'.${reset}"
+  log_action INFO "Thêm '$user' vào nhóm '$group'"
 }
 
-# ====== XÓA NGƯỜI KHỎI NHÓM ======
-remove_user_from_group() {
-  read -rp "Nhập tên người dùng: " u
-  read -rp "Nhập tên nhóm: " g
-
-  if ! user_exists "$u"; then notify_error "Không tồn tại người dùng '$u'."; return; fi
-  if ! group_exists "$g"; then notify_error "Không tồn tại nhóm '$g'."; return; fi
-
-  gpasswd -d "$u" "$g" && notify_success "Đã xóa '$u' khỏi nhóm '$g'." && \
-  log_action INFO "Xóa $u khỏi nhóm $g"
+xoa_nguoi_khoi_nhom() {
+  read -rp "Nhập tên người dùng: " user
+  read -rp "Nhập tên nhóm: " group
+  gpasswd -d "$user" "$group"
+  echo "${green}Đã xóa '$user' khỏi nhóm '$group'.${reset}"
+  log_action INFO "Xóa '$user' khỏi nhóm '$group'"
 }
 
-# ====== LIỆT KÊ TẤT CẢ NHÓM ======
-list_all_groups() {
-  echo "Danh sách nhóm:"
+danh_sach_nhom() {
+  echo "${blue}--- Danh sách nhóm ---${reset}"
   cut -d: -f1 /etc/group
-  log_action INFO "Liệt kê tất cả nhóm"
+  log_action INFO "Liệt kê danh sách nhóm"
 }
