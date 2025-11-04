@@ -2,36 +2,58 @@
 . "$(dirname "$0")/user.sh"
 . "$(dirname "$0")/group.sh"
 . "$(dirname "$0")/security.sh"
+. "$(dirname "$0")/file_mode.sh"
 
+# ======== MENU CHÍNH ========
 main_menu() {
   while true; do
-    echo "=== MAIN MENU ==="
-    echo "1) User menu"
-    echo "2) Group menu"
-    echo "3) Security menu"
-    echo "4) Exit"
-    read -rp "Choose: " c
+    echo "====== QUẢN LÝ NGƯỜI DÙNG & NHÓM ======"
+    echo "1) Đọc yêu cầu từ file"
+    echo "2) Thực hiện thao tác trực tiếp"
+    echo "3) Xuất file log"
+    echo "4) Thoát"
+    read -rp "Chọn (1-4): " c
     case $c in
-      1) user_menu ;;
-      2) group_menu ;;
-      3) security_menu ;;
-      4) exit 0 ;;
+      1) run_from_file ;;
+      2) direct_mode ;;
+      3) export_logs ;;
+      4) echo "Tạm biệt!"; exit 0 ;;
+      *) echo "Lựa chọn không hợp lệ!" ;;
     esac
   done
 }
 
+# ======== CHẾ ĐỘ TRỰC TIẾP ========
+direct_mode() {
+  while true; do
+    echo "=== MENU CHÍNH ==="
+    echo "1) Quản lý người dùng"
+    echo "2) Quản lý nhóm"
+    echo "3) Bảo mật tài khoản"
+    echo "4) Quay lại"
+    read -rp "Chọn: " c
+    case $c in
+      1) user_menu ;;
+      2) group_menu ;;
+      3) security_menu ;;
+      4) return ;;
+    esac
+  done
+}
+
+# ======== MENU NGƯỜI DÙNG ========
 user_menu() {
   while true; do
-    echo "--- USER MENU ---"
-    echo "1) Create user"
-    echo "2) Delete user"
-    echo "3) Change password"
-    echo "4) Show info"
-    echo "5) List users"
-    echo "6) Who is logged in"
-    echo "7) Last logins"
-    echo "8) Back"
-    read -rp "Choose: " c
+    echo "--- QUẢN LÝ NGƯỜI DÙNG ---"
+    echo "1) Tạo người dùng"
+    echo "2) Xóa người dùng"
+    echo "3) Đổi mật khẩu"
+    echo "4) Hiển thị thông tin"
+    echo "5) Liệt kê tất cả người dùng"
+    echo "6) Ai đang đăng nhập"
+    echo "7) Lịch sử đăng nhập"
+    echo "8) Quay lại"
+    read -rp "Chọn: " c
     case $c in
       1) create_user ;;
       2) delete_user ;;
@@ -45,16 +67,17 @@ user_menu() {
   done
 }
 
+# ======== MENU NHÓM ========
 group_menu() {
   while true; do
-    echo "--- GROUP MENU ---"
-    echo "1) Create group"
-    echo "2) Delete group"
-    echo "3) Add user to group"
-    echo "4) Remove user from group"
-    echo "5) List groups"
-    echo "6) Back"
-    read -rp "Choose: " c
+    echo "--- QUẢN LÝ NHÓM ---"
+    echo "1) Tạo nhóm"
+    echo "2) Xóa nhóm"
+    echo "3) Thêm người dùng vào nhóm"
+    echo "4) Xóa người khỏi nhóm"
+    echo "5) Liệt kê nhóm"
+    echo "6) Quay lại"
+    read -rp "Chọn: " c
     case $c in
       1) create_group ;;
       2) delete_group ;;
@@ -66,14 +89,15 @@ group_menu() {
   done
 }
 
+# ======== MENU BẢO MẬT ========
 security_menu() {
   while true; do
-    echo "--- SECURITY MENU ---"
-    echo "1) Lock user"
-    echo "2) Unlock user"
-    echo "3) Apply password policy"
-    echo "4) Back"
-    read -rp "Choose: " c
+    echo "--- BẢO MẬT TÀI KHOẢN ---"
+    echo "1) Khóa tài khoản"
+    echo "2) Mở khóa tài khoản"
+    echo "3) Áp dụng chính sách mật khẩu"
+    echo "4) Quay lại"
+    read -rp "Chọn: " c
     case $c in
       1) lock_user ;;
       2) unlock_user ;;
@@ -83,5 +107,19 @@ security_menu() {
   done
 }
 
-main_menu
+# ======== XUẤT FILE LOG ========
+export_logs() {
+  echo "1) Xuất toàn bộ log"
+  echo "2) Lọc log theo loại (INFO, ERROR...)"
+  read -rp "Chọn: " opt
+  if [[ $opt == 1 ]]; then
+    cp /var/log/user_group_manager.log ./log_export.txt
+    echo "Đã xuất log ra file log_export.txt"
+  elif [[ $opt == 2 ]]; then
+    read -rp "Nhập loại log (ví dụ: INFO): " lvl
+    grep "\[$lvl\]" /var/log/user_group_manager.log > ./log_$lvl.txt
+    echo "Đã xuất log loại $lvl ra file log_$lvl.txt"
+  fi
+}
 
+main_menu
