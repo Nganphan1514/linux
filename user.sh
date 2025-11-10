@@ -3,33 +3,45 @@
 
 tao_nguoi_dung() {
   read -rp "Nhập tên người dùng: " username
-  if user_exists "$username"; then
-    echo "${yellow}Người dùng đã tồn tại.${reset}"
-    log_action WARN "Người dùng '$username' đã tồn tại"
+  if [[ -z "$username" ]]; then
+    echo "${red}Tên người dùng không được để trống.${reset}"; return
+  fi
+  if ! valid_username "$username"; then
+    echo "${red}Tên không hợp lệ. Chỉ dùng a-z, 0-9, '_' hoặc '-' và bắt đầu bằng chữ thường hoặc '_'${reset}"
     return
   fi
-  useradd -m -s /bin/bash "$username"
+  if user_exists "$username"; then
+    echo "${yellow}Người dùng đã tồn tại.${reset}"
+    log_action WARN "Tạo user thất bại: $username đã tồn tại"
+    return
+  fi
+
+  safe_run useradd -m -s /bin/bash "$username" || { echo "${red}Tạo user thất bại.${reset}"; return; }
+  echo "Đặt mật khẩu cho $username:"
   passwd "$username"
-  chage -d 0 "$username"
-  chage -M 90 "$username"
+  chage -d 0 "$username" 2>/dev/null || true
+  chage -M 90 "$username" 2>/dev/null || true
   echo "${green}Đã tạo người dùng '$username'.${reset}"
   log_action INFO "Tạo người dùng '$username'"
 }
 
 xoa_nguoi_dung() {
   read -rp "Nhập tên người dùng cần xóa: " username
+  if [[ -z "$username" ]]; then echo "${red}Không được để trống.${reset}"; return; fi
   if ! user_exists "$username"; then
-    echo "${red}Không tìm thấy người dùng.${reset}"
-    log_action WARN "Không tìm thấy người dùng '$username'"
-    return
+    echo "${red}Không tìm thấy người dùng.${reset}"; log_action WARN "Xóa user thất bại: $username không tồn tại"; return
   fi
-  userdel -r "$username"
-  echo "${green}Đã xóa người dùng '$username'.${reset}"
-  log_action INFO "Xóa người dùng '$username'"
+  read -rp "Xác nhận xóa '$username' và thư mục home? (y/N): " confirm
+  if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    safe_run userdel -r "$username" && echo "${green}Đã xóa người dùng '$username'.${reset}" && log_action INFO "Xóa người dùng '$username'"
+  else
+    echo "${yellow}Hủy xóa.${reset}"
+  fi
 }
 
 doi_mat_khau() {
   read -rp "Nhập tên người dùng: " username
+  if [[ -z "$username" ]]; then echo "${red}Không được để trống.${reset}"; return; fi
   if ! user_exists "$username"; then echo "${red}Không tồn tại.${reset}"; return; fi
   passwd "$username"
   echo "${green}Đổi mật khẩu thành công cho '$username'.${reset}"
@@ -38,6 +50,7 @@ doi_mat_khau() {
 
 thong_tin_nguoi_dung() {
   read -rp "Nhập tên người dùng: " username
+  if [[ -z "$username" ]]; then echo "${red}Không được để trống.${reset}"; return; fi
   if ! user_exists "$username"; then echo "${red}Không tồn tại.${reset}"; return; fi
   echo "${blue}--- Thông tin người dùng '$username' ---${reset}"
   id "$username"
@@ -59,6 +72,7 @@ dang_dang_nhap() {
 
 lich_su_dang_nhap() {
   read -rp "Nhập tên người dùng: " username
+  if [[ -z "$username" ]]; then echo "${red}Không được để trống.${reset}"; return; fi
   last "$username" | head
   log_action INFO "Xem lịch sử đăng nhập của '$username'"
 }
