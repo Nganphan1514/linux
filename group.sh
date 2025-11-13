@@ -43,3 +43,28 @@ danh_sach_nhom() {
   cut -d: -f1 /etc/group
   log_action INFO "Liệt kê danh sách nhóm"
 }
+# -----------------------------
+# MENU NHÓM
+# -----------------------------
+menu_group() {
+  while true; do
+    echo "${blue}=========== MENU NHÓM ===========${reset}"
+    echo "1) Tạo nhóm"
+    echo "2) Xóa nhóm"
+    echo "3) Thêm người dùng vào nhóm"
+    echo "4) Xóa người dùng khỏi nhóm"
+    echo "5) Danh sách nhóm"
+    echo "6) Quay lại menu chính"
+    echo "================================="
+    read -rp "Chọn (1-6): " c
+    case $c in
+      1) tao_nhom ;;
+      2) xoa_nhom ;;
+      3) them_nguoi_vao_nhom ;;
+      4) xoa_nguoi_khoi_nhom ;;
+      5) danh_sach_nhom ;;
+      6) break ;;
+      *) echo "${red}Lựa chọn không hợp lệ.${reset}" ;;
+    esac
+  done
+}
