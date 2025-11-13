@@ -76,3 +76,29 @@ lich_su_dang_nhap() {
   last "$username" | head
   log_action INFO "Xem lịch sử đăng nhập của '$username'"
 }
+menu_user() {
+  while true; do
+    echo "${blue}--- MENU NGƯỜI DÙNG ---${reset}"
+    echo "1) Tạo người dùng"
+    echo "2) Xóa người dùng"
+    echo "3) Đổi mật khẩu"
+    echo "4) Xem thông tin"
+    echo "5) Danh sách người dùng"
+    echo "6) Người dùng đang đăng nhập"
+    echo "7) Lịch sử đăng nhập"
+    echo "8) Quay lại"
+    read -rp "Chọn (1-8): " c
+    case $c in
+      1) tao_nguoi_dung ;;
+      2) xoa_nguoi_dung ;;
+      3) doi_mat_khau ;;
+      4) thong_tin_nguoi_dung ;;
+      5) danh_sach_nguoi_dung ;;
+      6) dang_dang_nhap ;;
+      7) lich_su_dang_nhap ;;
+      8) return ;;
+      *) echo "${red}Lựa chọn không hợp lệ.${reset}" ;;
+    esac
+  done
+}
+
