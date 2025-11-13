@@ -37,8 +37,8 @@ menu_security() {
     echo "===================================="
     read -rp "Chọn (1-4): " c
     case $c in
-      1) khoa_tai_khoan ;;
-      2) mo_khoa_tai_khoan ;;
+      1) khoa_nguoi_dung ;;
+      2) mo_khoa_nguoi_dung ;;
       3) chinh_sach_mat_khau ;;
       4) break ;;
       *) echo "${red}Lựa chọn không hợp lệ.${reset}" ;;
