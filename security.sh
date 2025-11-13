@@ -24,3 +24,24 @@ chinh_sach_mat_khau() {
   echo "${blue}Áp dụng chính sách mật khẩu (90 ngày) cho '$user'.${reset}"
   log_action INFO "Áp dụng chính sách mật khẩu cho '$user'"
 }
+# -----------------------------
+# MENU BẢO MẬT
+# -----------------------------
+menu_security() {
+  while true; do
+    echo "${blue}=========== MENU BẢO MẬT ===========${reset}"
+    echo "1) Khóa tài khoản người dùng"
+    echo "2) Mở khóa tài khoản người dùng"
+    echo "3) Kiểm tra chính sách mật khẩu"
+    echo "4) Quay lại menu chính"
+    echo "===================================="
+    read -rp "Chọn (1-4): " c
+    case $c in
+      1) khoa_tai_khoan ;;
+      2) mo_khoa_tai_khoan ;;
+      3) chinh_sach_mat_khau ;;
+      4) break ;;
+      *) echo "${red}Lựa chọn không hợp lệ.${reset}" ;;
+    esac
+  done
+}
