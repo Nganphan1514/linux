@@ -1,0 +1,5 @@
+# Ví dụ nội dung file yêu cầu
+TaoNguoiDung: user1, user2
+TaoNhom: group1
+ThemNguoiVaoNhom: user1, group1
+KhoaTaiKhoan: user2
