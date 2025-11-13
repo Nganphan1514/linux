@@ -19,3 +19,15 @@ Dự án giúp **quản lý người dùng, nhóm, bảo mật và xuất dữ l
 ```bash
 sudo chmod +x install.sh
 sudo ./install.sh
+
+### Bước 2: Chạy chương trình chính (menu đầy đủ)
+sudo ./main.sh
+
+### (Tùy chọn) Bước 4: Chạy ở chế độ tự động bằng file yêu cầu
+sudo ./file_mode.sh + tên file
+Ví dụ:
+
+sudo ./file_mode.sh example_requests.txt
+
+### Gỡ cài đặt làm sạch sau test
+sudo ./uninstall.sh
