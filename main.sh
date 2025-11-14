@@ -16,29 +16,89 @@ fi
 . "$(dirname "$0")/utils.sh"
 . "$(dirname "$0")/file_mode.sh"
 
-# ====== HÀM XUẤT FILE ======
+# =====================================
+#            HÀM XUẤT LOG
+# =====================================
+menu_xuat_log() {
+  mkdir -p exports
+
+  while true; do
+    echo "${bold}${blue}--- XUẤT LOG ---${reset}"
+    echo "1) Theo người dùng"
+    echo "2) Theo nhóm"
+    echo "3) Toàn bộ log"
+    echo "4) Quay lại"
+    read -rp "Chọn (1-4): " lc
+
+    case $lc in
+      1)
+        read -rp "Nhập tên người dùng: " u
+        [[ -z "$u" ]] && echo "${red}Tên không được để trống.${reset}" && continue
+
+        out="exports/log_user_${u}_$(date +%Y%m%d_%H%M%S).txt"
+        grep -i "$u" "$LOG_FILE" > "$out"
+
+        echo "${green}✅ Đã xuất log người dùng '$u' vào: $out${reset}"
+        ;;
+      
+      2)
+        read -rp "Nhập tên nhóm: " g
+        [[ -z "$g" ]] && echo "${red}Tên không được để trống.${reset}" && continue
+
+        out="exports/log_group_${g}_$(date +%Y%m%d_%H%M%S).txt"
+        grep -i "$g" "$LOG_FILE" > "$out"
+
+        echo "${green}✅ Đã xuất log nhóm '$g' vào: $out${reset}"
+        ;;
+      
+      3)
+        out="exports/log_all_$(date +%Y%m%d_%H%M%S).txt"
+        cp "$LOG_FILE" "$out"
+
+        echo "${green}✅ Đã xuất toàn bộ log vào: $out${reset}"
+        ;;
+      
+      4)
+        return
+        ;;
+      
+      *)
+        echo "${red}❌ Lựa chọn không hợp lệ.${reset}"
+        ;;
+    esac
+  done
+}
+
+# =====================================
+#            HÀM XUẤT FILE
+# =====================================
 xuat_file() {
+  mkdir -p exports
+
   while true; do
     echo "${bold}${blue}--- MENU XUẤT FILE ---${reset}"
     echo "1) Xuất danh sách người dùng"
     echo "2) Xuất danh sách nhóm"
-    echo "3) Xuất toàn bộ (người dùng + nhóm + người trong nhóm)"
+    echo "3) Xuất toàn bộ (user + group + member)"
     echo "4) Xuất log"
     echo "5) Quay lại"
     read -rp "Chọn (1-5): " c
+
     case $c in
       1)
         out="exports/export_users_$(date +%Y%m%d_%H%M%S).txt"
         cut -d: -f1 /etc/passwd > "$out"
-        echo "${green}✅ Đã xuất danh sách người dùng vào $out${reset}"
+        echo "${green}✅ Xuất danh sách người dùng vào: $out${reset}"
         log_action INFO "Xuất danh sách người dùng -> $out"
         ;;
+      
       2)
         out="exports/export_groups_$(date +%Y%m%d_%H%M%S).txt"
         cut -d: -f1 /etc/group > "$out"
-        echo "${green}✅ Đã xuất danh sách nhóm vào $out${reset}"
+        echo "${green}✅ Xuất danh sách nhóm vào: $out${reset}"
         log_action INFO "Xuất danh sách nhóm -> $out"
         ;;
+      
       3)
         out="exports/export_all_$(date +%Y%m%d_%H%M%S).txt"
         {
@@ -51,70 +111,29 @@ xuat_file() {
             [ -n "$members" ] && echo "$name: $members"
           done < /etc/group
         } > "$out"
-        echo "${green}✅ Đã xuất toàn bộ dữ liệu vào $out${reset}"
+
+        echo "${green}✅ Đã xuất toàn bộ vào: $out${reset}"
         log_action INFO "Xuất toàn bộ -> $out"
         ;;
+      
       4)
         menu_xuat_log
         ;;
-      5) return ;;
-      *) echo "${red}❌ Lựa chọn không hợp lệ.${reset}" ;;
+      
+      5)
+        return
+        ;;
+      
+      *)
+        echo "${red}❌ Lựa chọn không hợp lệ.${reset}"
+        ;;
     esac
   done
 }
 
-# ====== MENU XUẤT LOG ======
-menu_xuat_log() {
-  while true; do
-    echo "${bold}${blue}--- XUẤT LOG ---${reset}"
-    echo "1) Theo người dùng"
-    echo "2) Theo nhóm"
-    echo "3) Toàn bộ log"
-    echo "4) Quay lại"
-    read -rp "Chọn (1-4): " lc
-    case $lc in
-      1)
-        read -rp "Nhập tên người dùng: " u
-        [[ -z "$u" ]] && echo "${red}Tên không được để trống.${reset}" && continue
-        grep -i "$u" "$LOG_FILE" > "exports/log_user_${u}_$(date +%Y%m%d_%H%M%S).txt"
-        echo "${green}✅ Đã xuất log người dùng '$u'.${reset}"
-        ;;
-      2)
-        read -rp "Nhập tên nhóm: " g
-        [[ -z "$g" ]] && echo "${red}Tên không được để trống.${reset}" && continue
-        grep -i "$g" "$LOG_FILE" > "exports/log_group_${g}_$(date +%Y%m%d_%H%M%S).txt"
-        echo "${green}✅ Đã xuất log nhóm '$g'.${reset}"
-        ;;
-      3)
-        cp "$LOG_FILE" "exports/log_all_$(date +%Y%m%d_%H%M%S).txt"
-        echo "${green}✅ Đã xuất toàn bộ log.${reset}"
-        ;;
-      4) return ;;
-      *) echo "${red}❌ Lựa chọn không hợp lệ.${reset}" ;;
-    esac
-  done
-}
-
-# ====== MENU CHÍNH ======
-main_menu() {
-  while true; do
-    echo "${bold}${blue}=== MENU CHÍNH ===${reset}"
-    echo "1) Đọc yêu cầu từ file"
-    echo "2) Thực hiện thao tác trực tiếp"
-    echo "3) Xuất file"
-    echo "4) Thoát"
-    read -rp "Chọn (1-4): " c
-    case $c in
-      1) run_from_file ;;
-      2) menu_truc_tiep ;;
-      3) xuat_file ;;
-      4) echo "${yellow}Tạm biệt!${reset}"; exit 0 ;;
-      *) echo "${red}❌ Lựa chọn không hợp lệ.${reset}" ;;
-    esac
-  done
-}
-
-# ====== MENU TRỰC TIẾP ======
+# =====================================
+#            MENU TRỰC TIẾP
+# =====================================
 menu_truc_tiep() {
   while true; do
     echo "${bold}${blue}--- MENU TRỰC TIẾP ---${reset}"
@@ -123,11 +142,34 @@ menu_truc_tiep() {
     echo "3) Bảo mật"
     echo "4) Quay lại"
     read -rp "Chọn (1-4): " c
+
     case $c in
       1) menu_user ;;
       2) menu_group ;;
       3) menu_security ;;
       4) return ;;
+      *) echo "${red}❌ Lựa chọn không hợp lệ.${reset}" ;;
+    esac
+  done
+}
+
+# =====================================
+#            MENU CHÍNH
+# =====================================
+main_menu() {
+  while true; do
+    echo "${bold}${blue}=== MENU CHÍNH ===${reset}"
+    echo "1) Đọc yêu cầu từ file"
+    echo "2) Thực hiện thao tác trực tiếp"
+    echo "3) Xuất file"
+    echo "4) Thoát"
+    read -rp "Chọn (1-4): " c
+
+    case $c in
+      1) run_from_file ;;
+      2) menu_truc_tiep ;;
+      3) xuat_file ;;
+      4) echo "${yellow}Tạm biệt!${reset}"; exit 0 ;;
       *) echo "${red}❌ Lựa chọn không hợp lệ.${reset}" ;;
     esac
   done
